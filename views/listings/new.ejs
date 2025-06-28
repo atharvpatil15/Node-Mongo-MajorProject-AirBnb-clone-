@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIRBNB</title>
+  </head>
+  <body>
+    <form action="/listing" method="POST">
+      <input
+        type="text"
+        name="listing[title]"
+        placeholder="enter the title"
+      /><br /><br />
+      <textarea
+        type="text"
+        name="listing[description]"
+        placeholder="enter the description"
+        rows="5"
+        cols="20"
+      ></textarea>
+      <br /><br />
+      <input
+        type="text"
+        name="listing[image]"
+        placeholder="enter the link/url of image"
+      /> <br><br>
+      <input
+        type="number"
+        name="listing[price]"
+        placeholder="enter the price"
+      /><br /><br />
+      <input
+        type="text"
+        name="listing[location]"
+        placeholder="enter the location"
+      /><br /><br />
+      <input
+        type="text"
+        name="listing[country]"
+        placeholder="enter the country"
+      /><br /><br />
+      <button>Submit</button>
+    </form>
+  </body>
+</html>
