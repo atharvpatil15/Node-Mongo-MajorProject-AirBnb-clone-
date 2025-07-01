@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const MONGO_URL = "mongodb://127.0.0.1:27017/airBnb";
 const path = require("path");
 const methodOverride = require("method-override");
+ejsMate = require('ejs-mate');
+app.engine('ejs', ejsMate);
 
 const Listing = require("./models/listing.js");
 
@@ -19,6 +21,7 @@ async function main() {
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 
@@ -36,10 +39,15 @@ app.get("/listing/new", (req, res)=>{
 })
 
 app.post("/listing", async (req, res)=>{
-   let newListing = new Listing(req.body.listing);
-   newListing.save();
-//    console.log(newListing);
-   res.redirect("/listing");
+  if (!req.body.listing.image || req.body.listing.image.trim() === "") {
+    delete req.body.listing.image; // let mongoose apply default
+  }
+
+  const newListing = new Listing(req.body.listing);
+  console.log("new listing is:", newListing);
+
+  await newListing.save(); // always await save
+  res.redirect("/listing");
 
 })
 

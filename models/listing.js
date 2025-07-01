@@ -13,7 +13,7 @@ const listingSchema = new schema({
     },
     image: {
         type: String,
-        default: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=60"
+        default: "https://st3.depositphotos.com/1472772/14760/i/450/depositphotos_147602337-stock-photo-house-icon-3d-rendering.jpg"
       },
     price: {
         type: Number,

@@ -1,0 +1,195 @@
+footer {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef !important;
+    margin-top: 0 !important;
+    padding: 24px 32px !important;
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.08);
+    position: relative;
+    transition: all 0.3s ease;
+}
+body{
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.container{
+    flex: 1;
+}
+
+/* Copyright section with social icons */
+.copyright {
+    color: #6c757d !important;
+    font-size: 0.95rem;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.copyright .social-icons {
+    display: flex;
+    gap: 12px;
+    margin-left: 8px;
+}
+
+.copyright .social-icons i {
+    font-size: 1.4rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.copyright .social-icons i:hover {
+    color: #ff5a5f;
+    background-color: rgba(255, 90, 95, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Airbnb logo section */
+.footer-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.footer-logo:hover {
+    transform: scale(1.05);
+}
+
+.footer-logo i {
+    filter: drop-shadow(0 2px 4px rgba(255, 90, 95, 0.2));
+}
+
+/* Navigation links */
+.nav {
+    gap: 8px;
+}
+
+.nav-link {
+    color: #6c757d !important;
+    font-weight: 500;
+    padding: 8px 16px !important;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #ff5a5f !important;
+    background-color: rgba(255, 90, 95, 0.08);
+    transform: translateY(-1px);
+}
+
+/* Add subtle animation */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: #ff5a5f;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 60%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    footer {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 20px;
+        padding: 20px 16px !important;
+    }
+
+    .copyright {
+        order: 3;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .footer-logo {
+        order: 1;
+        margin-bottom: 16px;
+    }
+
+    .nav {
+        order: 2;
+        justify-content: center !important;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .nav-link {
+        padding: 6px 12px !important;
+        font-size: 0.9rem;
+    }
+
+    .copyright .social-icons {
+        margin-left: 0;
+        justify-content: center;
+    }
+}
+
+/* Container styling */
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Additional hover effects for social media */
+.fa-square-x-twitter:hover {
+    color: #1da1f2 !important;
+}
+
+.fa-square-instagram:hover {
+    color: #e4405f !important;
+}
+
+.fa-linkedin:hover {
+    color: #0077b5 !important;
+}
+
+.fa-square-facebook:hover {
+    color: #1877f2 !important;
+}
+
+/* Smooth animations */
+* {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Body styling for demo */
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    background: #ffffff;
+}
+
+main {
+    flex: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+}
