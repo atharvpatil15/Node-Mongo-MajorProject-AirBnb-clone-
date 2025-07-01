@@ -39,6 +39,7 @@ app.get("/listing/new", (req, res)=>{
 })
 
 app.post("/listing", async (req, res)=>{
+  //logic for default img link
   if (!req.body.listing.image || req.body.listing.image.trim() === "") {
     delete req.body.listing.image; // let mongoose apply default
   }
