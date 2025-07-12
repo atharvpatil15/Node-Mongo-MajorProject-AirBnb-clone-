@@ -17,7 +17,8 @@ const listingSchema = new schema({
       },
     price: {
         type: Number,
-        required: true
+        required: [true, 'Price is required'],
+        min: [1, 'Price must be at least ₹1']
     },
     location: {
         type: String,
