@@ -1,34 +1,198 @@
 <% layout('layouts/boilerplate') -%>
-  <body>
+<body>
+  <div class="row">
+    <div class="col-8 offset-2" style="padding: 0px">
+      <h3 class="mt-3">listing details</h3>
 
-    <div class="row">
-      <div class="col-8 offset-2" style="padding: 0px;">
-    <h3 class="mt-3">listing details</h3>
-
-    <div class="card" >
-      <img src="<%= listing.image %>" class="card-img-top show-image" alt="...">
-      <div class="card-body">
-        <h5 class="card-title"><%= listing.title %></h5>
+      <div class="card">
+        <img
+          src="<%= listing.image %>"
+          class="card-img-top show-image"
+          alt="..."
+        />
+        <div class="card-body">
+          <h5 class="card-title"><%= listing.title %></h5>
 
           <p><%= listing.description %></p>
           <p>&#8377;<%= listing.price.toLocaleString("en-IN") %></p>
-          <p ><%= listing.location %>, <%= listing.country %></p>
-       
+          <p><%= listing.location %>, <%= listing.country %></p>
+
           <div class="row">
-        
-        <div class="col-12 col-md-6 mb-2">
-       <a href="/listing/<%=listing._id%>/edit" class="btn btn-dark w-100">EDIT</a>
-        </div>
-        <div class="col-12 col-md-6 mb-2">
-        <form method="POST" action="/listing/<%=listing._id%>?_method=DELETE" ><button class="btn btn-danger w-100">DELETE</button></form>
+            <div class="col-12 col-md-6 mb-2">
+              <a
+                href="/listing/<%=listing._id%>/edit"
+                class="btn btn-dark w-100"
+                >EDIT</a
+              >
+            </div>
+            <div class="col-12 col-md-6 mb-2">
+              <form
+                method="POST"
+                action="/listing/<%=listing._id%>?_method=DELETE"
+              >
+                <button class="btn btn-danger w-100">DELETE</button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
+      <hr />
+      <div class="col-8 offset-2" class="mb-3">
+        <h4>Leave a Review</h4>
+        <form
+          action="/listing/<%= listing._id %>/review"
+          method="post"
+          novalidate
+          class="needs-validation"
+        >
+        <div class="invalid-feedback">
+          Please add comment.
+        </div>
+          <div class="mb-2">
+            <label for="rating" class="form-label">Rating</label>
+            <input
+              type="range"
+              min="1"
+              max="5"
+              class="form-range"
+              name="review[rating]"
+              id="rating"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea
+              name="review[comment]"
+              id="comment"
+              class="form-control"
+              cols="30"
+              rows="5"
+              required
+            ></textarea>
+            <div class="invalid-feedback">please add the comment</div>
+          </div>
+          <button class="btn btn-outline-dark mt-2">Submit</button>
+        </form>
+        <hr>
+        <h4>All Reviews</h4>
+<div class="row">
+    <% for(let i = 0; i < listing.reviews.length; i++) { %>
+        <% let review = listing.reviews[i]; %>
+        <% 
+            let userNames = ['John Doe', 'Sarah Smith', 'Mike Johnson', 'Emily Davis', 'David Wilson', 'Lisa Brown'];
+            let randomUser = userNames[Math.floor(Math.random() * userNames.length)];
+        %>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body ">
+                    <h6 class="card-title"><%= randomUser %></h6>
+                    <p class="mb-2">Rating: <%= review.rating %>/5</p>
+                    <p class="card-text"><%= review.comment %></p>
+                    <small class="text-muted"><%= review.createdAt.toDateString() %></small>
+                    <form action="/listing/<%=listing._id%>/review/<%=review._id%>?_method=DELETE" method="POST">
+                      <button class="btn btn-outline-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        <style>
+          .col-8.offset-2 {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+          }
+
+          h4 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 500;
+          }
+
+          .form-label {
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+          }
+
+          .mb-2,
+          .mb-3 {
+            margin-bottom: 20px;
+          }
+
+          .form-range {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            margin: 10px 0;
+          }
+
+          .form-range::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            -webkit-appearance: none;
+          }
+
+          .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+          }
+
+          .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+          }
+
+          .btn {
+            border: solid black 1px;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 15px;
+          }
+
+          .btn:hover {
+            background: #000000;
+          }
+
+          .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+          }
+        </style>
 
       </div>
     </div>
-
   </div>
-</div>
-    
-  </body>
-
+  
+</body>

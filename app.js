@@ -10,7 +10,9 @@ app.engine('ejs', ejsMate);
 const Listing = require("./models/listing.js");
 const wrapAsync = require("./utils/wrapAsync.js")
 const ExpressError = require("./utils/ExpressError.js")
-const {listingSchema} = require("./schema.js")
+const {listingSchema, reviewSchema} = require("./schema.js");
+const Review = require("./models/reviews.js");
+const reviews = require("./models/reviews.js");
 
 main()
   .then(() => {
@@ -34,6 +36,16 @@ function validateListing(req, res, next){
   if(error){
     throw new ExpressError(400, error);
 };
+next();
+};
+
+function validateReview(req, res, next){
+  let {error} = reviewSchema.validate(req.body);
+  console.log(error);
+  if(error){
+    throw new ExpressError(400, error);
+};
+next();
 };
 
 app.get("/", (req, res) => {
@@ -42,19 +54,19 @@ app.get("/", (req, res) => {
 console.log("Type of ExpressError:", typeof ExpressError);
 });
 
-// Index route - show all listings
+//------------------------------ Index route - show all listings
 app.get("/listing",  wrapAsync( async (req, res, next) => {
   const allListings = await Listing.find({});
   res.render("listings/index.ejs", {allListings});
 }));
 
 
-// New listing form
+// ---------------------------New listing form
 app.get("/listing/new" , wrapAsync( async (req, res, next)=>{
     res.render("listings/new.ejs");
 }));
 
-// Create new listing
+// -------------------------------------Create new listing
 app.post("/listing",validateListing,wrapAsync( async (req, res, next)=>{
   //logic for default img link
 
@@ -72,21 +84,21 @@ app.post("/listing",validateListing,wrapAsync( async (req, res, next)=>{
   res.redirect("/listing");
 }));
 
-// Edit form 
+// -----------------------------------Edit form 
 app.get("/listing/:id/edit", wrapAsync( async (req, res, next)=>{
     const {id} = req.params;
     const listing = await Listing.findById(id);
     res.render("listings/edit.ejs", {listing});
 }));
 
-// Update listing
+//------------------------------- Update listing
 app.put("/listing/:id",validateListing,wrapAsync( async(req, res, next)=>{
     const {id} = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing }, { runValidators: true });
     res.redirect(`/listing`)
 }));
 
-// Delete listing
+// ---------------------------------Delete listing
 app.delete("/listing/:id",wrapAsync( async (req, res, next)=>{
     const {id} = req.params;
     console.log("the id of deleted item is ",id);
@@ -95,10 +107,42 @@ app.delete("/listing/:id",wrapAsync( async (req, res, next)=>{
     res.redirect("/listing");
 }));
 
+//--------------------- add reviews, POST request 
 
+app.post("/listing/:id/review", validateReview, wrapAsync(async (req, res) => {
+  let listing = await Listing.findById(req.params.id);
+  let newReview = new Review(req.body.review);
+
+  console.log("newReview before save:", newReview);
+
+  await newReview.save();
+  console.log("newReview after save:", newReview);
+
+  
+  listing.reviews.push(newReview);
+  await listing.save();
+  
+  console.log("Review added to listing:", listing._id);
+  res.redirect(`/listing/${listing._id}`);
+}));
+
+//--------------to delete the reviews
+
+app.delete("/listing/:id/review/:reviewId", wrapAsync(async (req, res)=>{
+
+let{id, reviewId} = req.params;
+await Listing.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
+await Review.findByIdAndDelete(reviewId);
+
+res.redirect(`/listing/${id}`);
+
+}))
+
+
+//------------------------------to show all listings
 app.get("/listing/:id", wrapAsync( async (req, res, next)=>{
     const {id} = req.params;
-    const listing = await Listing.findById(id);
+    const listing = await Listing.findById(id).populate("reviews");
     console.log(listing);
     res.render("listings/show.ejs", {listing});
 }));

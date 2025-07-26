@@ -1,8 +1,6 @@
-// utils/ExpressError.js - Fixed version
-
 class ExpressError extends Error {
-    constructor(statusCode, message) {  // statusCode first, message second
-        super(message);  // Pass message to parent Error class
+    constructor(statusCode, message) {  
+        super(message);  
         this.statusCode = statusCode;
         this.name = this.constructor.name;
     }
