@@ -30,6 +30,7 @@ function validateReview(req, res, next){
     await listing.save();
     
     console.log("Review added to listing:", listing._id);
+    req.flash("success", "Review added succesfully");
     res.redirect(`/listing/${listing._id}`);
   }));
   
@@ -40,7 +41,7 @@ function validateReview(req, res, next){
   let{id, reviewId} = req.params;
   await Listing.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
   await Review.findByIdAndDelete(reviewId);
-  
+  req.flash("success", "Review deleted succesfully");
   res.redirect(`/listing/${id}`);
   
   }))

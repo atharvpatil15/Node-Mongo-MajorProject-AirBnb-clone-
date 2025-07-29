@@ -4,6 +4,8 @@ const wrapAsync = require("../utils/wrapAsync.js")
 const ExpressError = require("../utils/ExpressError.js")
 const {listingSchema, reviewSchema} = require("../schema.js");
 const router = express.Router();
+const session = require("express-session");
+const flash = require("connect-flash");
 
 function validateListing(req, res, next){
     let {error} = listingSchema.validate(req.body);
@@ -41,6 +43,7 @@ function validateListing(req, res, next){
     console.log("new listing is:", newListing);
   
     await newListing.save(); 
+    req.flash("success", "New listing created");
     res.redirect("/listing");
   }));
   
@@ -55,6 +58,7 @@ function validateListing(req, res, next){
   router.put("/:id",validateListing,wrapAsync( async(req, res, next)=>{
       const {id} = req.params;
       await Listing.findByIdAndUpdate(id, { ...req.body.listing }, { runValidators: true });
+      req.flash("success", "Listing edit succesfully");
       res.redirect(`/listing`)
   }));
   
@@ -64,6 +68,7 @@ function validateListing(req, res, next){
       console.log("the id of deleted item is ",id);
       let deletedListing =  await Listing.findByIdAndDelete(id);
       console.log(deletedListing);
+      req.flash("success", "Listing deleted succesfully");
       res.redirect("/listing");
   }));
 

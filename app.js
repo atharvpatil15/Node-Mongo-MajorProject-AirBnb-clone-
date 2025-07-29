@@ -17,6 +17,9 @@ const reviews = require("./models/reviews.js");
 const listing = require("./routes/listing.js");
 const review = require("./routes/review.js");
 
+const session = require("express-session");
+const flash = require("connect-flash");
+
 main()
   .then(() => {
     console.log("database is connected to airBnb");
@@ -51,13 +54,30 @@ function validateReview(req, res, next){
 next();
 };
 
+const sessionOption = {
+  secret: "mysupersecretcode",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 7*24*60*60*1000 ,
+    maxAge: 7*24*60*60*1000 ,
+    httpOnly: true
+  },
+}
+
 app.get("/", (req, res) => {
   res.send("root is working");
   console.log("ExpressError:", ExpressError);
 console.log("Type of ExpressError:", typeof ExpressError);
 });
 
+app.use(session(sessionOption));
+app.use(flash());
 
+app.use((req,res,next)=>{
+  res.locals.success = req.flash("success");
+  next();
+})
 
 //-------------
 
