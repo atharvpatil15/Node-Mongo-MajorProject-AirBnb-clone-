@@ -14,11 +14,16 @@ const {listingSchema, reviewSchema} = require("./schema.js");
 const Review = require("./models/reviews.js");
 const reviews = require("./models/reviews.js");
 
-const listing = require("./routes/listing.js");
-const review = require("./routes/review.js");
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
 
 const session = require("express-session");
 const flash = require("connect-flash");
+
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js")
 
 main()
   .then(() => {
@@ -71,24 +76,35 @@ app.get("/", (req, res) => {
 console.log("Type of ExpressError:", typeof ExpressError);
 });
 
+
+
 app.use(session(sessionOption));
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
 app.use((req,res,next)=>{
   res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
   next();
 })
 
 //-------------
 
-app.use("/listing", listing);
-app.use("/listing/:id/review", review)
+app.use("/listing", listingRouter);
+app.use("/listing/:id/review", reviewRouter)
+app.use("/", userRouter);
 
 //-------------
 
 
 //--------------------- add reviews, POST request 
-
 
 
 
