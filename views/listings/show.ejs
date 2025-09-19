@@ -8,15 +8,18 @@
         <img
           src="<%= listing.image %>"
           class="card-img-top show-image"
-          alt="..."
+          alt="listing-img"
         />
         <div class="card-body">
           <h5 class="card-title"><%= listing.title %></h5>
 
-          <p><%= listing.description %></p>
-          <p>&#8377;<%= listing.price.toLocaleString("en-IN") %></p>
-          <p><%= listing.location %>, <%= listing.country %></p>
+          <p class="card-text">Owned By:- <%= listing.owner.username%></p>
 
+          <p class="card-text"><%= listing.description %></p>
+          <p class="card-text">&#8377;<%= listing.price.toLocaleString("en-IN") %></p>
+          <p class="card-text"><%= listing.location %>, <%= listing.country %></p>
+
+          <% if(currentUser && currentUser._id.equals(listing.owner._id)) { %>
           <div class="row">
             <div class="col-12 col-md-6 mb-2">
               <a
@@ -36,8 +39,11 @@
           </div>
         </div>
       </div>
+      <% } %>
       <hr />
+      
       <div class="col-8 offset-2" class="mb-3">
+        <% if(currentUser) { %>
         <h4>Leave a Review</h4>
         <form
           action="/listing/<%= listing._id %>/review"
@@ -73,19 +79,16 @@
           </div>
           <button class="btn btn-outline-dark mt-2">Submit</button>
         </form>
+        <% } %>
         <hr>
         <h4>All Reviews</h4>
 <div class="row">
     <% for(let i = 0; i < listing.reviews.length; i++) { %>
-        <% let review = listing.reviews[i]; %>
-        <% 
-            let userNames = ['John Doe', 'Sarah Smith', 'Mike Johnson', 'Emily Davis', 'David Wilson', 'Lisa Brown'];
-            let randomUser = userNames[Math.floor(Math.random() * userNames.length)];
-        %>
+      <% let review = listing.reviews[i]; %>
         <div class="col-md-6 mb-3">
             <div class="card">
                 <div class="card-body ">
-                    <h6 class="card-title"><%= randomUser %></h6>
+                    <h6 class="card-title">@<%= review.author.username%></h6>
                     <p class="mb-2">Rating: <%= review.rating %>/5</p>
                     <p class="card-text"><%= review.comment %></p>
                     <small class="text-muted"><%= review.createdAt.toDateString() %></small>

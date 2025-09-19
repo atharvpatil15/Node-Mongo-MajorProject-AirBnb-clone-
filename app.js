@@ -25,6 +25,9 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js")
 
+
+
+
 main()
   .then(() => {
     console.log("database is connected to airBnb");
@@ -96,25 +99,20 @@ app.use((req,res,next)=>{
 })
 
 //-------------
-
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user; // assuming Passport sets req.user
+  next();
+});
 app.use("/listing", listingRouter);
 app.use("/listing/:id/review", reviewRouter)
 app.use("/", userRouter);
 
-//-------------
-
-
-//--------------------- add reviews, POST request 
 
 
 
-//------------------------------to show all listings
-app.get("/listing/:id", wrapAsync( async (req, res, next)=>{
-    const {id} = req.params;
-    const listing = await Listing.findById(id).populate("reviews");
-    console.log(listing);
-    res.render("listings/show.ejs", {listing});
-}));
+
+
+
 
 // Catch all unmatched routes
 
