@@ -98,6 +98,7 @@ const sessionOption = {
 
 
 
+
 app.use(session(sessionOption));
 app.use(flash());
 
@@ -120,11 +121,15 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.user; // assuming Passport sets req.user
   next();
 });
+
 app.use("/listing", listingRouter);
 app.use("/listing/:id/review", reviewRouter)
 app.use("/", userRouter);
 
 
+app.get("/", (req, res) => {
+  res.redirect("/listing");
+});
 
 
 

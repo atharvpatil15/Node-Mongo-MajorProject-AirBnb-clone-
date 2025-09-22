@@ -24,7 +24,7 @@ router.route("/")
 router.get("/new", isLoggedin, listingController.renderNewListing);
 
 router.route("/:id")
-  .get(wrapAsync(listingController.showListing)) //------------------------------to show all listings
+  .get(wrapAsync(listingController.showListing)) //------------------------------to show listings
   .put(
     isLoggedin,
     isOwner,
