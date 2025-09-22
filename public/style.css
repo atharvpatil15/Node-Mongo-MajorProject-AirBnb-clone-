@@ -53,5 +53,9 @@ a{
     height: 30vh;
 }
 
-/* the review section css code below */
+/* map */
 
+#map { 
+    height: 400px; 
+    width: 80vh; 
+}

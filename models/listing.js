@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Review = require("./reviews.js");
+const { string } = require("joi");
 
 const schema = mongoose.Schema;
 
@@ -13,9 +14,8 @@ const listingSchema = new schema({
     required: true,
   },
   image: {
-    type: String,
-    default:
-      "https://st3.depositphotos.com/1472772/14760/i/450/depositphotos_147602337-stock-photo-house-icon-3d-rendering.jpg",
+    url: String,
+    filename: String,
   },
   price: {
     type: Number,
@@ -39,6 +39,17 @@ const listingSchema = new schema({
     {
     type: schema.Types.ObjectId,
     ref: "User"
+  },
+  geometry: {
+    type: {
+      type: String, // Don't do `{ location: { type: String } }`
+      enum: ['Point'], // 'location.type' must be 'Point'
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
   },
   
 });

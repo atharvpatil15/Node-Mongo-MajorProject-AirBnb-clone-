@@ -1,3 +1,8 @@
+if(process.env.NODE_ENV != "production"){
+  require('dotenv').config()
+}
+
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -73,11 +78,7 @@ const sessionOption = {
   },
 }
 
-app.get("/", (req, res) => {
-  res.send("root is working");
-  console.log("ExpressError:", ExpressError);
-console.log("Type of ExpressError:", typeof ExpressError);
-});
+
 
 
 

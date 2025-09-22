@@ -1,42 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/navbar.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="/navbar.css">
 </head>
 <body>
-   
+  <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+    <div class="container-fluid d-flex align-items-center">
+      
+      <!-- Logo + Explore -->
+      <div class="d-flex align-items-center">
+        <a class="navbar-brand" href="/listing" style="font-size: 1.5rem;">
+          <i class="fa-brands fa-airbnb nav-logo"></i> <b>airbnb</b>
+        </a>
+        <a class="nav-link ms-3" href="/listing">Explore</a>
+      </div>
 
-    <nav class="navbar navbar-expand-lg  bg-body-tertiary sticky-top">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="/" style="font-size: 1.5rem;"><i class="fa-brands fa-airbnb nav-logo"></i> <b>airbnb</b></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-              <a class="nav-link " href="/">Home</a>
-              <a class="nav-link" href="/listing">All-listing</a>
-              <a class="nav-link" href="/listing/new">Create-new</a>
-              
-              
-            </div>
-            <div class="navbar-nav ms-auto">
-              <% if (!currentUser) { %>
-                <!-- Show login/signup if NOT logged in -->
-                <a class="nav-link "  href="/login">Login</a>
-                <a class="nav-link "  href="/signup">Signup</a>
-            <% } else { %>
-                <!-- Show logout if logged in -->
-                <span>Welcome, <%= currentUser.username %>!</span>
-                <a class="nav-link "  href="/logout">Logout</a>
-            <% } %>
-              
-            </div>
-          </div>
+      <!-- Toggler for mobile -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" 
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+     
+     
+
+      <!-- Right side options -->
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+        <div class=" search-bar mx-auto">
+          <form class="d-flex">
+            <input class=" me-2 input-search" type="search" placeholder="Search destinations" >
+            <button class=" btn-search" type="submit">Search</i></button>
+          </form>
         </div>
-      </nav>
+
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="/listing/new">Airbnb your home</a>
+          <% if (!currentUser) { %>
+            <a class="nav-link" href="/login"><b>Login</b></a>
+            <a class="nav-link" href="/signup"><b>Signup</b></a>
+          <% } else { %>
+            <span class="nav-link">Welcome, <%= currentUser.username %>!</span>
+            <a class="nav-link" href="/logout"><b>Logout</b></a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>
 </body>
 </html>

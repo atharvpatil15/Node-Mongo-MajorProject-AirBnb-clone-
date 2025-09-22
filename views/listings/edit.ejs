@@ -8,9 +8,10 @@
         action="/listing/<%= listing._id %>?_method=PUT"
         novalidate
         class="needs-validation"
+        enctype="multipart/form-data"
       >
         <div class="mb-3 col-md-6">
-          <label for="title" class="form-label">Enter title</label>
+          <label for="title" class="form-label"><h6>Enter title :</h6></label>
           <input
             type="text"
             name="listing[title]"
@@ -22,7 +23,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="Description" class="form-label">Enter Description</label>
+          <label for="Description" class="form-label"><h6>Enter Description :</h6></label>
           <textarea
             type="text"
             name="listing[description]"
@@ -37,19 +38,22 @@
             Please enter the valid description.
           </div>
         </div>
+        <div>
+          <h6>Original listing image :</h6>
+          <img src="<%= originalImageUrl%>" alt="">
+        </div>
 
         <div class="mb-3">
-          <label for="image" class="form-label">Enter URL/link of image</label>
+          <label for="image" class="form-label"><h6>Select the new Image :</h6></label>
           <input
-            type="text"
+            type="file"
             name="listing[image]"
-            value="<%=listing.image%>"
             class="form-control"
           />
         </div>
 
         <div class="mb-3">
-          <label for="price" class="form-label">Enter Price</label>
+          <label for="price" class="form-label"><h6>Enter price :</h6></label>
           <input
             type="number"
             name="listing[price]"
@@ -63,7 +67,7 @@
 
         <div class="row">
           <div class="mb-3 col-md-6">
-            <label for="location" class="form-label">Enter location</label>
+            <label for="location" class="form-label"><h6>Enter location :</h6></label>
             <input
               type="text"
               name="listing[location]"
@@ -75,7 +79,7 @@
           </div>
 
           <div class="mb-3 col-md-6">
-            <label for="country" class="form-label">Enter country</label>
+            <label for="country" class="form-label"><h6>Enter country :</h6></label>
             <input
               type="text"
               name="listing[country]"

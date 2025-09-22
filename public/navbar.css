@@ -133,3 +133,27 @@
 .nav-logo{
     font-weight: 800;
 }
+.btn-search{
+    background-color: #ff5a5f !important;
+    border: none!important;
+    color: white !important;
+    border-radius: 25px!important;
+    padding: 0.25rem 2rem 0.25rem 2rem!important;
+  }
+  .btn-search i {
+    display: inline!important;
+    margin-right: 0.5rem!important;
+  }
+  .btn-search:hover{
+    background-color: #ff5a5f!important;
+    color: white!important;
+  }
+  .input-search{
+    border-radius: 25px!important;
+    outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 90, 96, 0.09); /* soft red glow */
+  border: 1px solid #ff5a5f;
+    padding: 0.25rem 3rem 0.25rem 3rem!important;
+    font-size: 0.8rem!important;
+  }
+ 
