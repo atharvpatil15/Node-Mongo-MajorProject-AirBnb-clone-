@@ -3,7 +3,7 @@
 <body>
   <script>
     const mapToken = "<%= process.env.MAP_TOKEN %>";
-    const listing = <%- JSON.stringify(listing) %>;
+    const listing = "<%= JSON.stringify(listing) %>";
   </script>
   <div class="row">
     <div class="col-12 col-md-8 offset-md-2" style="padding: 10px">
@@ -603,4 +603,8 @@
 
     /* Dark mode support - removed */
   </style>
+
 </body>
+
+
+
