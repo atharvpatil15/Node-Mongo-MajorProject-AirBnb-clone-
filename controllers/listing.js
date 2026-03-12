@@ -21,7 +21,7 @@ module.exports.showListing = async (req, res, next)=>{
     }).populate("owner");
       if (!listing) {
         req.flash("error", "Listing you requested for does not exist!");
-        res.redirect("/listing");
+        return res.redirect("/listing");
       };
     console.log(listing);
     res.render("listings/show.ejs", {listing});

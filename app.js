@@ -7,18 +7,16 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const MONGO_URL = "mongodb://127.0.0.1:27017/airBnb";
-const dburl = process.env.ATLASDB_URL;
+const dburl = MONGO_URL;
 const path = require("path");
 const methodOverride = require("method-override");
-ejsMate = require('ejs-mate');
+const ejsMate = require('ejs-mate');
 app.engine('ejs', ejsMate);
 
 const Listing = require("./models/listing.js");
 const wrapAsync = require("./utils/wrapAsync.js")
 const ExpressError = require("./utils/ExpressError.js")
 const {listingSchema, reviewSchema} = require("./schema.js");
-const Review = require("./models/reviews.js");
-const reviews = require("./models/reviews.js");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
@@ -31,8 +29,6 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js")
-
-
 
 
 main()
@@ -51,25 +47,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 
-function validateListing(req, res, next){
-  let {error} = listingSchema.validate(req.body);
-  console.log(error);
-  if(error){
-    throw new ExpressError(400, error);
-};
-next();
-};
-
-function validateReview(req, res, next){
-  let {error} = reviewSchema.validate(req.body);
-  console.log(error);
-  if(error){
-    throw new ExpressError(400, error);
-};
-next();
-};
-
-
 const store = MongoStore.create({
   mongoUrl: dburl,
   crypto:{
@@ -78,12 +55,12 @@ const store = MongoStore.create({
   touchAfter: 24*3600,
 });
 
-store.on("error", ()=>{
+store.on("error", (err)=>{
   console.log("ERROR IN MONGO SESSION STORE", err);
 });
 
 const sessionOption = {
-  store,
+  // store,
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
@@ -94,12 +71,12 @@ const sessionOption = {
   },
 }
 
-
-
-
-
-
 app.use(session(sessionOption));
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 app.use(flash());
 
 app.use(passport.initialize());
@@ -113,14 +90,9 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req,res,next)=>{
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.currentUser = req.user;
   next();
 })
-
-//-------------
-app.use((req, res, next) => {
-  res.locals.currentUser = req.user; // assuming Passport sets req.user
-  next();
-});
 
 app.use("/listing", listingRouter);
 app.use("/listing/:id/review", reviewRouter)
@@ -131,19 +103,13 @@ app.get("/", (req, res) => {
   res.redirect("/listing");
 });
 
-
-
-
-
-
 // Catch all unmatched routes
-
 app.all(/.*/, (req, res, next) => {
   next(new ExpressError(404, "page not found!"));
 });
 
-
 app.use((err, req, res, next) => {
+ console.error(err);
  let{ statusCode=500, message="something went wrong" } = err;
  res.status(statusCode).render("error.ejs",{message,statusCode});
 });
