@@ -14,6 +14,7 @@ const ejsMate = require("ejs-mate");
 app.engine("ejs", ejsMate);
 
 const ExpressError = require("./utils/ExpressError.js");
+const wrapAsync = require("./utils/wrapAsync.js");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
@@ -115,3 +116,5 @@ app.use((err, req, res, next) => {
 app.listen(8080, () => {
   console.log("Server is running on port 8080");
 });
+
+module.exports = app;
