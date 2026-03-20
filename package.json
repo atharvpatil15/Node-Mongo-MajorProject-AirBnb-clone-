@@ -8,7 +8,8 @@
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": ""
+    "build": "echo 'No build step required'",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "atharv patil",
@@ -33,5 +34,10 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^8.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0"
   }
 }

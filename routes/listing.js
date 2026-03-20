@@ -1,13 +1,11 @@
 const express = require("express");
-const Listing = require("../models/listing.js");
 const wrapAsync = require("../utils/wrapAsync.js");
 
 const router = express.Router();
-const flash = require("connect-flash");
 const { isLoggedin, isOwner, validateListing } = require("../middleware.js");
 const listingController = require("../controllers/listing.js");
 
-const multer  = require('multer')
+const multer  = require("multer");
 const {storage} = require("../cloudConfig.js");
 const upload = multer({storage});
 
@@ -15,7 +13,7 @@ const upload = multer({storage});
 router.route("/")
   .get(wrapAsync(listingController.index))
   .post(isLoggedin,
-    upload.single('listing[image]'),
+    upload.single("listing[image]"),
     validateListing,
     wrapAsync(listingController.createListing)
   );// ------------------ Create new listing
@@ -28,7 +26,7 @@ router.route("/:id")
   .put(
     isLoggedin,
     isOwner,
-    upload.single('listing[image]'),
+    upload.single("listing[image]"),
     validateListing,
     wrapAsync(listingController.updateListing) // ------------------ Update listing
   )

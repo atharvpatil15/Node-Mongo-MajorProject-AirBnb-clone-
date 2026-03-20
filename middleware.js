@@ -6,12 +6,12 @@ const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema, reviewSchema } = require("./schema.js");
 
 module.exports.isLoggedin = (req, res, next)=>{
-    if(!req.isAuthenticated()){
-        req.session.redirectUrl = req.originalUrl;
-        req.flash("error", "you need to login first");
-        return res.redirect("/login");
-      }
-      next();
+  if(!req.isAuthenticated()){
+    req.session.redirectUrl = req.originalUrl;
+    req.flash("error", "you need to login first");
+    return res.redirect("/login");
+  }
+  next();
 };
 
 module.exports.saveRedirectUrl = (req, res, next)=>{
@@ -44,8 +44,8 @@ module.exports.validateReview=(req, res, next)=>{
   console.log(error);
   if(error){
     throw new ExpressError(400, error);
-};
-next();
+  };
+  next();
 };
 
 module.exports.isReviewAuthor =async (req, res, next)=>{

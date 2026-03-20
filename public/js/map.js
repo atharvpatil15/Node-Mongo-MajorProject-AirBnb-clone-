@@ -8,9 +8,8 @@ const map = new mapboxgl.Map({
   zoom: 8, // starting zoom
 });
 
-// Create a new marker.
-const marker = new mapboxgl.Marker({ color: "red"})
-    .setLngLat(listing.geometry.coordinates)
-    .setPopup(new mapboxgl.Popup({offset: 25})
+new mapboxgl.Marker({ color: "red"})
+  .setLngLat(listing.geometry.coordinates)
+  .setPopup(new mapboxgl.Popup({offset: 25})
     .setHTML(`<h5>${listing.location}</h5><p>Exact location provided will be after the booking.</p>`))
-    .addTo(map);
+  .addTo(map);

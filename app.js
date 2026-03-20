@@ -1,5 +1,5 @@
 if(process.env.NODE_ENV != "production"){
-  require('dotenv').config()
+  require("dotenv").config();
   
 }
 
@@ -10,25 +10,22 @@ const mongoose = require("mongoose");
 const dburl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/airBnb";
 const path = require("path");
 const methodOverride = require("method-override");
-const ejsMate = require('ejs-mate');
-app.engine('ejs', ejsMate);
+const ejsMate = require("ejs-mate");
+app.engine("ejs", ejsMate);
 
-const Listing = require("./models/listing.js");
-const wrapAsync = require("./utils/wrapAsync.js")
-const ExpressError = require("./utils/ExpressError.js")
-const {listingSchema, reviewSchema} = require("./schema.js");
+const ExpressError = require("./utils/ExpressError.js");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
 const session = require("express-session");
-const MongoStore = require('connect-mongo');
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const User = require("./models/user.js")
+const User = require("./models/user.js");
 
 
 main()
@@ -69,7 +66,7 @@ const sessionOption = {
     maxAge: 7*24*60*60*1000 ,
     httpOnly: true
   },
-}
+};
 
 app.use(session(sessionOption));
 
@@ -92,10 +89,10 @@ app.use((req,res,next)=>{
   res.locals.error = req.flash("error");
   res.locals.currentUser = req.user;
   next();
-})
+});
 
 app.use("/listing", listingRouter);
-app.use("/listing/:id/review", reviewRouter)
+app.use("/listing/:id/review", reviewRouter);
 app.use("/", userRouter);
 
 
@@ -108,10 +105,11 @@ app.all(/.*/, (req, res, next) => {
   next(new ExpressError(404, "page not found!"));
 });
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
- console.error(err);
- let{ statusCode=500, message="something went wrong" } = err;
- res.status(statusCode).render("error.ejs",{message,statusCode});
+  console.error(err);
+  let{ statusCode=500, message="something went wrong" } = err;
+  res.status(statusCode).render("error.ejs",{message,statusCode});
 });
 
 app.listen(8080, () => {
