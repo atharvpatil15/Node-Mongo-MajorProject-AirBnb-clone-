@@ -1,49 +1,119 @@
-const User = require("../models/user.js");
+const {
+  signUpUser,
+  signInUser,
+  signInWithGoogle,
+} = require("../services/firebaseAuth");
 
 module.exports.renderSignupForm =  async (req, res) => {
-  res.render("user/signup.ejs");
+  res.render("user/signup.ejs", { authPage: true });
 };
 
 module.exports.signup = async (req, res, next) => {
-
-  try{
-    let { username, email, password } = req.body;
-    const newUser = new User({ email, username });
-    const registerUser = await User.register(newUser, password);
-    console.log(registerUser);
-    req.login(registerUser, (err) =>{
-      if(err){
-        return next(err);
+  try {
+    const { username, email, password } = req.body;
+    const user = await signUpUser({ username, email, password });
+    req.session.user = user;
+    req.flash("success", "welcome to airbnb you are loggedin!");
+    return req.session.save((saveErr) => {
+      if (saveErr) {
+        return next(saveErr);
       }
-      req.flash("success", "welcome to airbnb you are loggedin!");
-            
-      res.redirect("/listing");
-           
+      return res.redirect("/listing");
     });
-        
-  }catch(e){
-    req.flash("error", e.message);
-    res.redirect("/signup");
+  } catch (e) {
+    req.flash("error", e.code || e.message);
+    return req.session.save((saveErr) => {
+      if (saveErr) {
+        return next(saveErr);
+      }
+      return res.redirect("/signup");
+    });
+  }
+};
+
+module.exports.renderLoginForm = (req, res) => {
+  res.render("user/login.ejs", { authPage: true });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    req.flash("error", "Email and password are required");
+    return req.session.save((saveErr) => {
+      if (saveErr) {
+        return next(saveErr);
+      }
+      return res.redirect("/login");
+    });
   }
 
- 
+  signInUser({ email, password })
+    .then((user) => {
+      req.session.user = user;
+      req.flash("success", "You are logged in successfully");
+      const redirectUrl = res.locals.redirectUrl || "/listing";
+      delete req.session.redirectUrl;
+      return req.session.save((saveErr) => {
+        if (saveErr) {
+          return next(saveErr);
+        }
+        return res.redirect(redirectUrl);
+      });
+    })
+    .catch((error) => {
+      req.flash("error", error.code || "Invalid email or password");
+      return req.session.save((saveErr) => {
+        if (saveErr) {
+          return next(saveErr);
+        }
+        return res.redirect("/login");
+      });
+    });
 };
 
-module.exports.renderLoginForm =  (req, res)=>{
-  res.render("user/login.ejs");
-};
+module.exports.googleAuth = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+    const user = await signInWithGoogle(idToken);
+    req.session.user = user;
+    req.flash("success", "You are logged in successfully");
 
-module.exports.login = async (req, res)=> {
-  req.flash("success", "You are logged in successfully");
-  let redirectUrl = res.locals.redirectUrl || "/listing";
-  res.redirect(redirectUrl);
+    const redirectUrl = req.session.redirectUrl || "/listing";
+    delete req.session.redirectUrl;
+
+    return req.session.save((saveErr) => {
+      if (saveErr) {
+        return next(saveErr);
+      }
+      return res.json({ redirectUrl });
+    });
+  } catch (error) {
+    const statusCode = error.code === "MISSING_GOOGLE_ID_TOKEN" ? 400 : 401;
+    req.flash("error", error.code || error.message || "Google sign-in failed");
+    return req.session.save((saveErr) => {
+      if (saveErr) {
+        return next(saveErr);
+      }
+      return res.status(statusCode).json({
+        error: error.code || error.message || "Google sign-in failed",
+      });
+    });
+  }
 };
 
 module.exports.logout = (req, res, next) => {
-  console.log("Logout route hit!");
-  req.logOut((err) => {
-    if (err) return next(err);
-    req.flash("success", "You are logged out!");
-    res.redirect("/listing");
+  req.session.user = null;
+  req.flash("success", "You are logged out!");
+  req.session.save((saveErr) => {
+    if (saveErr) {
+      return next(saveErr);
+    }
+    return req.session.destroy((destroyErr) => {
+      if (destroyErr) {
+        return next(destroyErr);
+      }
+      return res.redirect("/listing");
+    });
   });
 };

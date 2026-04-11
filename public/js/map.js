@@ -1,15 +1,33 @@
 
 mapboxgl.accessToken = mapToken;
 
-const map = new mapboxgl.Map({
-  container: "map", // container ID
-  style: "mapbox://styles/mapbox/streets-v12",
-  center: listing.geometry.coordinates, // starting position [lng, lat]. Note that lat must be set between -90 and 90
-  zoom: 8, // starting zoom
-});
+const coordinates = listing?.geometry?.coordinates;
+const hasValidCoordinates =
+  Array.isArray(coordinates) &&
+  coordinates.length === 2 &&
+  coordinates.every((value) => Number.isFinite(value));
 
-new mapboxgl.Marker({ color: "red"})
-  .setLngLat(listing.geometry.coordinates)
-  .setPopup(new mapboxgl.Popup({offset: 25})
-    .setHTML(`<h5>${listing.location}</h5><p>Exact location provided will be after the booking.</p>`))
-  .addTo(map);
+if (hasValidCoordinates) {
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/mapbox/streets-v12",
+    center: coordinates,
+    zoom: 8,
+  });
+
+  new mapboxgl.Marker({ color: "red" })
+    .setLngLat(coordinates)
+    .setPopup(
+      new mapboxgl.Popup({ offset: 25 }).setHTML(
+        `<h5>${listing.location}</h5><p>Exact location provided will be after the booking.</p>`
+      )
+    )
+    .addTo(map);
+} else {
+  const mapContainer = document.getElementById("map");
+
+  if (mapContainer) {
+    mapContainer.innerHTML =
+      "<p style='margin:0;padding:1rem;color:#666;'>Location coordinates are unavailable for this listing.</p>";
+  }
+}

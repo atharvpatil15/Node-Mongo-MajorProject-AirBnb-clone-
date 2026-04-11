@@ -4,46 +4,24 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
-const passport = require("passport");
-const LocalStrategy = require("passport-local");
-
-const User = require("./models/user.js");
 const ExpressError = require("./utils/ExpressError.js");
+require("./utils/firebase");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-// Validate Environment Variables
-const dbUrl = process.env.ATLASDB_URL;
 const secret = process.env.SECRET;
 
-if (!dbUrl || !secret) {
+if (!secret) {
   if (process.env.NODE_ENV === "production") {
-    console.error("CRITICAL: Missing required environment variables ATLASDB_URL or SECRET.");
+    console.error("CRITICAL: Missing required environment variables.");
   }
-}
-
-const finalDbUrl = dbUrl || "mongodb://127.0.0.1:27017/airBnb";
-
-// Connect to Database
-main()
-  .then(() => {
-    console.log("Database connected successfully");
-  })
-  .catch((err) => {
-    console.error("Database connection error:", err);
-  });
-
-async function main() {
-  await mongoose.connect(finalDbUrl);
 }
 
 // App Settings
@@ -52,28 +30,15 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Middlewares
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// Session Store Configuration
-const store = MongoStore.create({
-  mongoUrl: finalDbUrl,
-  crypto: {
-    secret: secret || "fallbacksecret",
-  },
-  touchAfter: 24 * 3600,
-});
-
-store.on("error", (err) => {
-  console.error("SESSION STORE ERROR:", err);
-});
-
 const sessionOptions = {
-  store,
   secret: secret || "fallbacksecret",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -84,18 +49,23 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
-// Passport Configuration
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+app.use((req, res, next) => {
+  req.user = req.session.user || null;
+  req.isAuthenticated = () => Boolean(req.session.user);
+  next();
+});
 
 // Locals Middleware
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currentUser = req.user;
+  res.locals.currentUser = req.session.user || null;
+  res.locals.authPage = false;
+  res.locals.firebaseClientConfig = {
+    apiKey: process.env.FIREBASE_WEB_API_KEY || "",
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
+    projectId: process.env.FIREBASE_PROJECT_ID || "",
+  };
   next();
 });
 
@@ -109,22 +79,56 @@ app.get("/", (req, res) => {
 });
 
 // Error Handling
-app.all("*", (req, res, next) => {
+app.all("*path", (req, res, next) => {
   next(new ExpressError(404, "Page Not Found!"));
 });
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
   const { statusCode = 500, message = "Something went wrong" } = err;
   console.error("Error Middleware:", err);
   res.status(statusCode).render("error.ejs", { message, statusCode });
 });
 
+function logProcessEvent(eventName, error) {
+  console.error(`[process:${eventName}]`, error || "");
+}
+
+process.on("uncaughtException", (error) => {
+  logProcessEvent("uncaughtException", error);
+});
+
+process.on("unhandledRejection", (error) => {
+  logProcessEvent("unhandledRejection", error);
+});
+
+process.on("exit", (code) => {
+  console.error(`[process:exit] code=${code}`);
+});
+
+process.on("SIGINT", () => {
+  console.error("[process:SIGINT] Server interrupted");
+});
+
+process.on("SIGTERM", () => {
+  console.error("[process:SIGTERM] Server terminated");
+});
+
 // Start Server locally
 const port = process.env.PORT || 8080;
 if (process.env.NODE_ENV !== "production") {
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
+  });
+
+  server.on("error", (error) => {
+    console.error("[server:error]", error);
+  });
+
+  server.on("close", () => {
+    console.error("[server:close] HTTP server closed");
   });
 }
 

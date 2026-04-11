@@ -1,4 +1,4 @@
-<% if(success && success.length) { %>
+<% if(Array.isArray(success) && success.length > 0) { %>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-5">
@@ -11,7 +11,7 @@
     </div>
   <% } %>
   
-  <% if(error && error.length) { %>
+  <% if(Array.isArray(error) && error.length > 0) { %>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-5">

@@ -6,6 +6,7 @@ const {
   validateReview,
   isLoggedin,
   isReviewAuthor,
+  isNotListingOwner,
 } = require("../middleware.js");
 const reviewController = require("../controllers/review.js");
 
@@ -13,8 +14,9 @@ const reviewController = require("../controllers/review.js");
 
 router.post(
   "/",
-  validateReview,
   isLoggedin,
+  isNotListingOwner,
+  validateReview,
   wrapAsync(reviewController.createReview)
 );
 
