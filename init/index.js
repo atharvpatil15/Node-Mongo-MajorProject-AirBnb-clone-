@@ -13,7 +13,7 @@ const initDB = async () => {
   initData.data.forEach((obj) => {
     const docRef = listingsCollection.doc();
     batch.set(docRef, {
-    ...obj,
+      ...obj,
       owner: {
         _id: "seed-user",
         username: "seed-user",
