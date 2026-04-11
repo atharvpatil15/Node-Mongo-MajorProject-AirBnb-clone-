@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "app.js": {
+      "includeFiles": "node_modules/iconv-lite/**/*"
+    }
+  },
   "builds": [
     {
       "src": "app.js",
