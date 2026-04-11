@@ -67,6 +67,14 @@
       integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
       crossorigin="anonymous"
     ></script>
+    <% if (authPage) { %>
+      <script>
+        window.firebaseClientConfig = <%- JSON.stringify(firebaseClientConfig) %>;
+      </script>
+      <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+      <script src="/js/firebaseAuth.js"></script>
+    <% } %>
     <script src="/js/script.js"></script>
   </body>
 </html>

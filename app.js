@@ -96,6 +96,26 @@ function logProcessEvent(eventName, error) {
   console.error(`[process:${eventName}]`, error || "");
 }
 
+let server;
+
+function shutdown(signal) {
+  console.error(`[process:${signal}] Server interrupted`);
+
+  if (!server) {
+    process.exit(0);
+    return;
+  }
+
+  server.close((error) => {
+    if (error) {
+      console.error("[server:close:error]", error);
+      process.exit(1);
+      return;
+    }
+    process.exit(0);
+  });
+}
+
 process.on("uncaughtException", (error) => {
   logProcessEvent("uncaughtException", error);
 });
@@ -109,11 +129,11 @@ process.on("exit", (code) => {
 });
 
 process.on("SIGINT", () => {
-  console.error("[process:SIGINT] Server interrupted");
+  shutdown("SIGINT");
 });
 
 process.on("SIGTERM", () => {
-  console.error("[process:SIGTERM] Server terminated");
+  shutdown("SIGTERM");
 });
 
 // Start HTTP server when running as a standalone Node process.
@@ -122,7 +142,7 @@ const port = process.env.PORT || 8080;
 const shouldStartServer = !process.env.VERCEL;
 
 if (shouldStartServer) {
-  const server = app.listen(port, () => {
+  server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
 

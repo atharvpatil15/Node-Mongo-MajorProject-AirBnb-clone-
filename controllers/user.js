@@ -10,8 +10,17 @@ module.exports.renderSignupForm =  async (req, res) => {
 
 module.exports.signup = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
-    const user = await signUpUser({ username, email, password });
+    const { username, email, password, phone } = req.body;
+    if (!phone) {
+      req.flash("error", "Phone number is required");
+      return req.session.save((saveErr) => {
+        if (saveErr) {
+          return next(saveErr);
+        }
+        return res.redirect("/signup");
+      });
+    }
+    const user = await signUpUser({ username, email, password, phone });
     req.session.user = user;
     req.flash("success", "welcome to airbnb you are loggedin!");
     return req.session.save((saveErr) => {
@@ -36,10 +45,10 @@ module.exports.renderLoginForm = (req, res) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, phone } = req.body;
 
-  if (!email || !password) {
-    req.flash("error", "Email and password are required");
+  if (!email || !password || !phone) {
+    req.flash("error", "Email, password and phone number are required");
     return req.session.save((saveErr) => {
       if (saveErr) {
         return next(saveErr);
@@ -48,7 +57,7 @@ module.exports.login = (req, res, next) => {
     });
   }
 
-  signInUser({ email, password })
+  signInUser({ email, password, phone })
     .then((user) => {
       req.session.user = user;
       req.flash("success", "You are logged in successfully");
@@ -74,8 +83,8 @@ module.exports.login = (req, res, next) => {
 
 module.exports.googleAuth = async (req, res, next) => {
   try {
-    const { idToken } = req.body;
-    const user = await signInWithGoogle(idToken);
+    const { idToken, phone } = req.body;
+    const user = await signInWithGoogle(idToken, phone);
     req.session.user = user;
     req.flash("success", "You are logged in successfully");
 
@@ -89,7 +98,10 @@ module.exports.googleAuth = async (req, res, next) => {
       return res.json({ redirectUrl });
     });
   } catch (error) {
-    const statusCode = error.code === "MISSING_GOOGLE_ID_TOKEN" ? 400 : 401;
+    const statusCode =
+      error.code === "MISSING_GOOGLE_ID_TOKEN" || error.code === "PHONE_REQUIRED"
+        ? 400
+        : 401;
     req.flash("error", error.code || error.message || "Google sign-in failed");
     return req.session.save((saveErr) => {
       if (saveErr) {

@@ -5,10 +5,40 @@ const {
   createListing,
   updateListing,
   deleteListing,
+  updateListingMetadata,
+  getUserProfile,
 } = require("../services/firestore");
 
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+
+function buildGeocodeQuery(listingInput) {
+  return [listingInput.location, listingInput.country].filter(Boolean).join(", ");
+}
+
+function hasUsableGeometry(geometry) {
+  const coordinates = geometry?.coordinates;
+  return (
+    Array.isArray(coordinates) &&
+    coordinates.length === 2 &&
+    coordinates.every((value) => Number.isFinite(value)) &&
+    !(coordinates[0] === 0 && coordinates[1] === 0)
+  );
+}
+
+async function geocodeListingInput(listingInput) {
+  const query = buildGeocodeQuery(listingInput);
+  if (!query) {
+    return null;
+  }
+
+  const response = await geocodingClient.forwardGeocode({
+    query,
+    limit: 1,
+  }).send();
+
+  return response.body.features[0]?.geometry || null;
+}
 
 module.exports.index = async (req, res) => {
   const allListings = await listListings();
@@ -26,25 +56,60 @@ module.exports.showListing = async (req, res)=>{
     req.flash("error", "Listing you requested for does not exist!");
     return res.redirect("/listing");
   };
-  res.render("listings/show.ejs", {listing, mapToken});
+
+  if (!hasUsableGeometry(listing.geometry)) {
+    const geometry = await geocodeListingInput(listing);
+    if (geometry) {
+      listing.geometry = geometry;
+      await updateListingMetadata(id, { geometry });
+    }
+  }
+
+  let hostPhone = listing.owner?.phone || "";
+  if (listing.owner?._id) {
+    const ownerProfile = await getUserProfile(listing.owner._id);
+    if (ownerProfile?.phone) {
+      hostPhone = ownerProfile.phone;
+      if (listing.owner.phone !== ownerProfile.phone) {
+        listing.owner.phone = ownerProfile.phone;
+        await updateListingMetadata(id, {
+          owner: {
+            ...listing.owner,
+            phone: ownerProfile.phone,
+          },
+        });
+      }
+    }
+  }
+
+  res.render("listings/show.ejs", { listing, mapToken, hostPhone });
 };
 
 module.exports.createListing = async (req, res) => {
-  const response = await geocodingClient.forwardGeocode({
-    query: req.body.listing.location,
-    limit: 1
-  })
-    .send();
+  const geometry = await geocodeListingInput(req.body.listing);
+  const currentUser = await getUserProfile(req.user._id) || req.user;
+
+  req.user = currentUser;
+  req.session.user = currentUser;
 
   let url = req.file ? req.file.path : "";
   let filename = req.file ? req.file.filename : "";
   await createListing(
     req.body.listing,
     req.file ? { url, filename } : null,
-    response.body.features[0]?.geometry || null,
-    req.user
+    geometry,
+    currentUser
   );
   req.flash("success", "New listing created");
+  await new Promise((resolve, reject) => {
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        reject(saveErr);
+        return;
+      }
+      resolve();
+    });
+  });
   res.redirect("/listing");
 };
 
@@ -64,12 +129,8 @@ module.exports.updateListing = async (req, res) => {
   const { id } = req.params;
   let geometry = null;
 
-  if (req.body.listing.location) {
-    const response = await geocodingClient.forwardGeocode({
-      query: req.body.listing.location,
-      limit: 1,
-    }).send();
-    geometry = response.body.features[0]?.geometry || null;
+  if (req.body.listing.location || req.body.listing.country) {
+    geometry = await geocodeListingInput(req.body.listing);
   }
 
   await updateListing(

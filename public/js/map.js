@@ -12,7 +12,7 @@ if (hasValidCoordinates) {
     container: "map",
     style: "mapbox://styles/mapbox/streets-v12",
     center: coordinates,
-    zoom: 8,
+    zoom: 11,
   });
 
   new mapboxgl.Marker({ color: "red" })

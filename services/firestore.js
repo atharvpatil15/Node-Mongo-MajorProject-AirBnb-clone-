@@ -23,6 +23,7 @@ function mapUser(doc) {
   return {
     _id: doc.id,
     email: data.email,
+    phone: data.phone || "",
     username: data.username,
     createdAt: serializeTimestamp(data.createdAt),
   };
@@ -69,6 +70,19 @@ async function getListingById(id) {
   }
 
   const listing = mapListing(listingDoc);
+  if (listing.owner && listing.owner._id && !listing.owner.phone) {
+    const ownerProfile = await getUserProfile(listing.owner._id);
+    if (ownerProfile && ownerProfile.phone) {
+      listing.owner.phone = ownerProfile.phone;
+      await listingsCollection.doc(id).update({
+        owner: {
+          ...listing.owner,
+          phone: ownerProfile.phone,
+        },
+      });
+    }
+  }
+
   const reviewsSnapshot = await reviewsCollection.where("listingId", "==", id).get();
 
   listing.reviews = reviewsSnapshot.docs
@@ -86,6 +100,7 @@ async function createListing(listingData, image, geometry, currentUser) {
     owner: {
       _id: currentUser._id,
       email: currentUser.email,
+      phone: currentUser.phone || "",
       username: currentUser.username,
     },
     createdAt: Timestamp.now(),
@@ -160,6 +175,7 @@ async function deleteReview(reviewId) {
 async function createUserProfile(uid, data) {
   const payload = {
     email: data.email,
+    phone: data.phone || "",
     username: data.username,
     createdAt: Timestamp.now(),
   };
@@ -168,6 +184,7 @@ async function createUserProfile(uid, data) {
   return {
     _id: uid,
     email: payload.email,
+    phone: payload.phone,
     username: payload.username,
   };
 }
@@ -179,6 +196,7 @@ async function upsertUserProfile(uid, data) {
 
   const payload = {
     email: data.email || existingData.email || "",
+    phone: data.phone || existingData.phone || "",
     username: data.username || existingData.username || "user",
     createdAt: existingData.createdAt || Timestamp.now(),
     updatedAt: Timestamp.now(),
@@ -188,6 +206,7 @@ async function upsertUserProfile(uid, data) {
   return {
     _id: uid,
     email: payload.email,
+    phone: payload.phone,
     username: payload.username,
     createdAt: serializeTimestamp(payload.createdAt),
   };
@@ -196,6 +215,10 @@ async function upsertUserProfile(uid, data) {
 async function getUserProfile(uid) {
   const doc = await usersCollection.doc(uid).get();
   return mapUser(doc);
+}
+
+async function updateListingMetadata(id, updates) {
+  await listingsCollection.doc(id).update(updates);
 }
 
 module.exports = {
@@ -210,4 +233,5 @@ module.exports = {
   createUserProfile,
   upsertUserProfile,
   getUserProfile,
+  updateListingMetadata,
 };
