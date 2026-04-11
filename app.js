@@ -116,9 +116,12 @@ process.on("SIGTERM", () => {
   console.error("[process:SIGTERM] Server terminated");
 });
 
-// Start Server locally
+// Start HTTP server when running as a standalone Node process.
+// On Vercel, the app must be exported without calling listen().
 const port = process.env.PORT || 8080;
-if (process.env.NODE_ENV !== "production") {
+const shouldStartServer = !process.env.VERCEL;
+
+if (shouldStartServer) {
   const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
